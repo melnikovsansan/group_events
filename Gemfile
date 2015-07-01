@@ -27,6 +27,10 @@ gem 'permanent_records'
 
 gem 'publishable'
 
+gem 'redcarpet'
+
+gem 'date_validator'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
