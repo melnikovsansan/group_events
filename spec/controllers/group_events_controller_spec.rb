@@ -23,13 +23,19 @@ RSpec.describe GroupEventsController, type: :controller do
   # This should return the minimal set of attributes required to create a valid
   # GroupEvent. As you add validations to GroupEvent, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
-  }
+  let(:valid_attributes) {{
+      name: 'name',
+      description: 'description',
+      location: 'location',
+      started_on: '2000-01-01',
+      finished_on: '2000-01-10'
+  }}
 
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
+  let(:invalid_attributes) {{
+    published_at: '2000-01-01',
+    started_on: '2000-01-10',
+    finished_on: '2000-01-01'
+  }}
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -40,6 +46,7 @@ RSpec.describe GroupEventsController, type: :controller do
     it "assigns all group_events as @group_events" do
       group_event = GroupEvent.create! valid_attributes
       get :index, {}, valid_session
+      puts assigns(:group_events)
       expect(assigns(:group_events)).to eq([group_event])
     end
   end
@@ -102,9 +109,9 @@ RSpec.describe GroupEventsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
-      }
+      let(:new_attributes) {{
+          published_at: '2000-01-01',
+      }}
 
       it "updates the requested group_event" do
         group_event = GroupEvent.create! valid_attributes

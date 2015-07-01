@@ -1,5 +1,6 @@
 class GroupEventsController < ApplicationController
   before_action :set_group_event, only: [:show, :update, :destroy]
+  skip_before_filter  :verify_authenticity_token
 
   def index
     @group_events = GroupEvent.recent
@@ -9,6 +10,7 @@ class GroupEventsController < ApplicationController
   end
 
   def create
+
     @group_event = GroupEvent.new(group_event_params)
 
     if @group_event.save
