@@ -1,4 +1,5 @@
 class GroupEvent < ActiveRecord::Base
+  attr_accessor :is_markdown
   default_scope { where deleted_at: nil}
 
   publishable on: :published_at
@@ -8,6 +9,8 @@ class GroupEvent < ActiveRecord::Base
     published_group_event.validates :started_on, date: true
     published_group_event.validates :finished_on, date: true
   end
+
+  before_validation :description_to_html, if: :is_markdown
 
   validates :duration, numericality: { allow_blank: true, greater_than_or_equal_to: 1 }
 
@@ -21,6 +24,13 @@ class GroupEvent < ActiveRecord::Base
 
   def self.deleted
     unscoped.where.not deleted_at: nil
+  end
+
+  private
+
+  def description_to_html
+    assign_attributes description: Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(description),
+                      is_markdown: false
   end
 
 end

@@ -25,10 +25,12 @@ RSpec.describe GroupEventsController, type: :controller do
   # adjust the attributes here as well.
   let(:valid_attributes) {{
       name: 'name',
-      description: 'description',
+      description: '*test* description',
       location: 'location',
       started_on: '2000-01-01',
-      finished_on: '2000-01-10'
+      finished_on: '2000-01-10',
+      published_at: '2000-01-01',
+      is_markdown: true
   }}
 
   let(:invalid_attributes) {{
@@ -42,11 +44,14 @@ RSpec.describe GroupEventsController, type: :controller do
   # GroupEventsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  before :each do
+    request.env['HTTP_ACCEPT'] = 'application/json'
+  end
+
   describe "GET #index" do
     it "assigns all group_events as @group_events" do
       group_event = GroupEvent.create! valid_attributes
-      get :index, {}, valid_session
-      puts assigns(:group_events)
+      get :index, {}
       expect(assigns(:group_events)).to eq([group_event])
     end
   end
@@ -57,20 +62,11 @@ RSpec.describe GroupEventsController, type: :controller do
       get :show, {:id => group_event.to_param}, valid_session
       expect(assigns(:group_event)).to eq(group_event)
     end
-  end
 
-  describe "GET #new" do
-    it "assigns a new group_event as @group_event" do
-      get :new, {}, valid_session
-      expect(assigns(:group_event)).to be_a_new(GroupEvent)
-    end
-  end
-
-  describe "GET #edit" do
-    it "assigns the requested group_event as @group_event" do
+    it "assigns the requested group_event description_markdown" do
       group_event = GroupEvent.create! valid_attributes
-      get :edit, {:id => group_event.to_param}, valid_session
-      expect(assigns(:group_event)).to eq(group_event)
+      get :show, {:id => group_event.to_param}, valid_session
+      expect(assigns(:group_event).description).to eq("<p><em>test</em> description</p>\n")
     end
   end
 
@@ -87,11 +83,6 @@ RSpec.describe GroupEventsController, type: :controller do
         expect(assigns(:group_event)).to be_a(GroupEvent)
         expect(assigns(:group_event)).to be_persisted
       end
-
-      it "redirects to the created group_event" do
-        post :create, {:group_event => valid_attributes}, valid_session
-        expect(response).to redirect_to(GroupEvent.last)
-      end
     end
 
     context "with invalid params" do
@@ -99,37 +90,26 @@ RSpec.describe GroupEventsController, type: :controller do
         post :create, {:group_event => invalid_attributes}, valid_session
         expect(assigns(:group_event)).to be_a_new(GroupEvent)
       end
-
-      it "re-renders the 'new' template" do
-        post :create, {:group_event => invalid_attributes}, valid_session
-        expect(response).to render_template("new")
-      end
     end
   end
 
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {{
-          published_at: '2000-01-01',
+          duration: 20,
       }}
 
-      it "updates the requested group_event" do
+      it "updates the requested group_event use duration" do
         group_event = GroupEvent.create! valid_attributes
         put :update, {:id => group_event.to_param, :group_event => new_attributes}, valid_session
         group_event.reload
-        skip("Add assertions for updated state")
+        expect(assigns(:group_event).finished_on).to eq(Date.parse('2000-01-20'))
       end
 
       it "assigns the requested group_event as @group_event" do
         group_event = GroupEvent.create! valid_attributes
         put :update, {:id => group_event.to_param, :group_event => valid_attributes}, valid_session
         expect(assigns(:group_event)).to eq(group_event)
-      end
-
-      it "redirects to the group_event" do
-        group_event = GroupEvent.create! valid_attributes
-        put :update, {:id => group_event.to_param, :group_event => valid_attributes}, valid_session
-        expect(response).to redirect_to(group_event)
       end
     end
 
@@ -138,12 +118,6 @@ RSpec.describe GroupEventsController, type: :controller do
         group_event = GroupEvent.create! valid_attributes
         put :update, {:id => group_event.to_param, :group_event => invalid_attributes}, valid_session
         expect(assigns(:group_event)).to eq(group_event)
-      end
-
-      it "re-renders the 'edit' template" do
-        group_event = GroupEvent.create! valid_attributes
-        put :update, {:id => group_event.to_param, :group_event => invalid_attributes}, valid_session
-        expect(response).to render_template("edit")
       end
     end
   end
@@ -154,12 +128,6 @@ RSpec.describe GroupEventsController, type: :controller do
       expect {
         delete :destroy, {:id => group_event.to_param}, valid_session
       }.to change(GroupEvent, :count).by(-1)
-    end
-
-    it "redirects to the group_events list" do
-      group_event = GroupEvent.create! valid_attributes
-      delete :destroy, {:id => group_event.to_param}, valid_session
-      expect(response).to redirect_to(group_events_url)
     end
   end
 
